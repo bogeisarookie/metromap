@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>地铁线路布局算法复现</title>
+    <script src="../lib/jQuery/jquery-1.11.2.min.js"></script>
+    <script src="../lib/leaflet/leaflet.js"></script>
+    <script src="../lib/leaflet/leaflet.ChineseTmsProviders.js"></script>
+    <script src="../lib/d3/d3.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="../lib/leaflet/leaflet.css">
+    <style type="text/css">
+    body {
+        padding: 0;
+        margin: 0;
+    }
+    
+    html,
+    body,
+    #map {
+        height: 100%;
+    }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+</body>
+<script src="./src/init_map_data.js"></script>
+<script src="./src/visualize.js"></script>
+<script src="./src/vector.js"></script>
+<script src="./src/metro_map_layout.js"></script>
+</html>
