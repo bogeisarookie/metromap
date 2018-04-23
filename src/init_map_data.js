@@ -53,6 +53,7 @@
             console.log(error);
         }
         //数据说明：line代表属于哪条线路，line_id代表属于该条线路的第几个站，从1开始。
+        console.log("最初的数据");
         console.log(data);
 
         visualize_data(data);

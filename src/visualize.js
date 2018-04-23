@@ -12,16 +12,22 @@ var color = ["#ED3229", "#36B854", "#FFD823", "#320176", "#823094", "#CF047A", "
 function visualize_data(data) {
     //转换数据
     convert_data(data);
-    console.log(edges);
+    //console.log(edges);
     //绘制初始线路布局
     draw_line_by_lonlat(edges);
     //布局算法
-    // metro_map_layout(edges);
-
+    metro_map_layout(all_vertex, all_edges);
 }
+/**
+ * 将数据转换成论文复现需要的格式
+ * 1.V：节点集合，其中节点内容{邻居节点、向量表示、属于哪些线段}
+ * 2.E：边结合，其中边内容{edges(vector,vector)、邻居节点、属于哪个线段}
+ * @param {any} data 
+ */
 function convert_data_to_EV(data) {
-
-    all_vertex = $.extend(true, [], data);
+    //深度拷贝数组，防止污染。
+    // all_vertex = $.extend(true, [], data);
+    all_vertex=data;
     for (var i = 0; i < all_vertex.length; i++) {
         for (var j = i + 1; j < all_vertex.length; j++) {
             if (all_vertex[i].station == all_vertex[j].station) {
@@ -37,7 +43,7 @@ function convert_data_to_EV(data) {
     all_vertex.forEach(element => {
         element.neighborhood = [];
         var lines = element.line.split(",");
-        var edges_copy=$.extend(true, [], edges);
+        var edges_copy = $.extend(true, [], edges);
         //遍历节点的所在线
         for (var i = 0; i < lines.length; i++) {
             //遍历所在线的站点
@@ -54,35 +60,74 @@ function convert_data_to_EV(data) {
                         element.neighborhood.push(edges_copy[parseInt(lines[i]) - 1].children[parseInt(station.line_id)]);
                     }
                     element.pixs_coor = map.latLngToLayerPoint([element.go_lat, element.go_lon]);
-                    element.vector = vector2d(element.pixs_coor.x, element.pixs_coor.y);
-                    // for(var i=0;i<element.neighborhood.length;i++){
-                    //     for(var j=i+1;j<element.neighborhood.length;j++){
-                    //         if(element.neighborhood[i].station==element.neighborhood[j].station){
-                    //             element.neighborhood[i].line+=","+element.neighborhood[j].line;
-                    //             element.neighborhood.splice(j,1);
-                    //             j--;
-                    //         }
-                    //     }
-                    // }
+                    element.vector = new Point(element.pixs_coor.x, element.pixs_coor.y);
+                    //这里删除多余的重复邻居节点，但是要保存多余的节点的附属线路id
+                    //之前的bug 是因为这里pq还用了i 跟最外层重复了，报错。
+                    for (var p = 0; p < element.neighborhood.length; p++) {
+                        for (var q = p + 1; q < element.neighborhood.length; q++) {
+                            if (element.neighborhood[p].station == element.neighborhood[q].station) {
+                                element.neighborhood[p].line += "," + element.neighborhood[q].line;
+                                element.neighborhood.splice(q, 1);
+                                q--;
+                            }
+                        }
+                    }
 
                 }
-            })
+            });
 
         }
     });
+    //所有节点，包括邻居节点和本身的向量
+    console.log("深度拷贝原数据，每个节点，加入了邻居节点，且删除重复的节点记录线路id")
     console.log(all_vertex);
+
+    edges.forEach(function (edge) {
+        edge.children.forEach(function (node, index) {
+            var i;
+            var j;
+            if ((index + 1) != edge.children.length) {
+                all_vertex.every(function(vertex_node) {
+                    if (vertex_node.station == node.station) {
+                        i = vertex_node;
+                        all_vertex.every(vertex_node => {                   
+                            if (vertex_node.station == edge.children[index + 1].station) {
+                                j = vertex_node;
+                                return false;
+                            }
+                            else{return true;}                 
+                    });
+                        return false;
+                    }
+                    else{return true;}
+                });
+
+                all_edges.push({
+                    i: i,
+                    j: j
+                });
+            }
+
+
+
+        });
+    });
+    console.log("边集合");
+    console.log(all_edges);
+    console.log("每条地铁线路集合");
+    console.log(edges);
 }
 
 /**
  * 
  * 转换数据
  * 1.转成像素点坐标
- * 2.按边分类。每条边为一个对象，{边的id，边下面的节点V}
- * 3.每个节点也为一个对象，{属于的边id，第几个站，交点edges，以及邻接点V} 
+ * 2.绘制线路
  * @param {any} data 
  */
 function convert_data(data) {
-    var data_copy=$.extend(true, [], data);
+    // var data_copy = $.extend(true, [], data);
+    var data_copy=data;
     data_copy.forEach(element => {
         element.pixs_coor = map.latLngToLayerPoint([element.go_lat, element.go_lon]);
         var find = false;
@@ -191,3 +236,4 @@ function draw_line_by_lonlat(edges) {
     });
 
 }
+
