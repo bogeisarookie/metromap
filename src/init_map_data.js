@@ -37,7 +37,7 @@
     }
     
      var map = L.map("map", {
-        center: [31.2328920509,121.4744959111],
+        center: [31.27107, 121.42467],
         zoom: 12,
          layers: [normalm4],
         zoomControl: false
@@ -48,7 +48,12 @@
         zoomInTitle: '放大',
         zoomOutTitle: '缩小'
     }).addTo(map);
-    d3.csv("./data/stations.csv",function(error,data){
+    // map.on("zoomend moveend",function(){
+    //     console.log("当前层级和中心点"+map.getZoom()+"中心点"+map.getCenter());
+    //     console.log(window.screen.height);
+    //     console.log(window.screen.width); 
+    // })
+    d3.csv("./data/testdata.csv",function(error,data){
         if(error){
             console.log(error);
         }
